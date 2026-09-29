@@ -163,7 +163,134 @@ def plot_time_of_day_profile():
     except:
         pass
 
+def plot_demand_response():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    hourly_path = os.path.join(project_root, "hdfs_local", "user", "energy_prediction", "energy_estimates", "hourly")
+    
+    if not os.path.exists(hourly_path):
+        print(f"Hourly path does not exist: {hourly_path}")
+        print("Please run 'python main.py' to generate the hourly data.")
+        return
+
+    try:
+        df = pd.read_parquet(hourly_path)
+    except Exception as e:
+        print(f"Failed to read hourly parquet data: {e}")
+        return
+
+    if "Energy_Global_active_power" not in df.columns or "Window_Start" not in df.columns:
+        print("Required columns missing for demand response.")
+        return
+
+    df['HourOfDay'] = pd.to_datetime(df['Window_Start']).dt.hour
+    
+    # Define Time-of-Use pricing (Demand Response)
+    def get_price(hour):
+        if 14 <= hour < 20:
+            return 0.25 # Peak
+        elif (6 <= hour < 14) or (20 <= hour < 22):
+            return 0.15 # Mid-peak
+        else:
+            return 0.10 # Off-peak
+            
+    df['Price_per_kWh'] = df['HourOfDay'].apply(get_price)
+    
+    hourly_avg = df.groupby('HourOfDay').agg({
+        'Energy_Global_active_power': 'mean',
+        'Price_per_kWh': 'first' # Since price is fixed per hour
+    }).reset_index()
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    color = 'tab:blue'
+    ax1.set_xlabel('Hour of Day (0 - 23)')
+    ax1.set_ylabel('Average Energy Consumption (kWh)', color=color)
+    ax1.bar(hourly_avg['HourOfDay'], hourly_avg['Energy_Global_active_power'], color=color, alpha=0.6, label='Energy Consumption')
+    ax1.tick_params(axis='y', labelcolor=color)
+
+    ax2 = ax1.twinx()  
+    color = 'tab:red'
+    ax2.set_ylabel('Electricity Price ($/kWh)', color=color)  
+    ax2.plot(hourly_avg['HourOfDay'], hourly_avg['Price_per_kWh'], color=color, marker='o', linewidth=2, label='Price Curve')
+    ax2.tick_params(axis='y', labelcolor=color)
+
+    fig.tight_layout()  
+    plt.title('Demand Response: Energy Consumption vs. Time-of-Use Pricing')
+    plt.xticks(range(0, 24))
+    plt.grid(True, linestyle='--', alpha=0.5)
+    
+    output_dir = os.path.join(project_root, "visualizations")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "demand_response.png")
+    plt.savefig(output_path)
+    print(f"Successfully generated demand response graph: {output_path}")
+
+    try:
+        plt.show()
+    except:
+        pass
+
+def plot_cost_vs_carbon():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    hourly_path = os.path.join(project_root, "hdfs_local", "user", "energy_prediction", "energy_estimates", "hourly")
+    
+    if not os.path.exists(hourly_path):
+        print(f"Hourly path does not exist: {hourly_path}")
+        return
+
+    try:
+        df = pd.read_parquet(hourly_path)
+    except Exception as e:
+        print(f"Failed to read hourly parquet data: {e}")
+        return
+
+    if "Energy_Global_active_power" not in df.columns or "Carbon_Emission_kgCO2" not in df.columns or "Window_Start" not in df.columns:
+        print("Required columns missing for cost vs carbon.")
+        return
+
+    df['HourOfDay'] = pd.to_datetime(df['Window_Start']).dt.hour
+    df['Date'] = pd.to_datetime(df['Window_Start']).dt.date
+    
+    # Define Time-of-Use pricing
+    def get_price(hour):
+        if 14 <= hour < 20:
+            return 0.25 # Peak
+        elif (6 <= hour < 14) or (20 <= hour < 22):
+            return 0.15 # Mid-peak
+        else:
+            return 0.10 # Off-peak
+            
+    df['Cost'] = df['Energy_Global_active_power'] * df['HourOfDay'].apply(get_price)
+    
+    # Group by date to get daily cost and carbon
+    daily_data = df.groupby('Date').agg({
+        'Cost': 'sum',
+        'Carbon_Emission_kgCO2': 'sum'
+    }).reset_index()
+
+    plt.figure(figsize=(10, 6))
+    plt.scatter(daily_data['Carbon_Emission_kgCO2'], daily_data['Cost'], alpha=0.5, color='teal')
+    
+    plt.title('Cost vs. Carbon Emission Trade-off (Daily)')
+    plt.xlabel('Daily Carbon Emissions (kg CO2)')
+    plt.ylabel('Daily Energy Cost ($)')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    
+    output_dir = os.path.join(project_root, "visualizations")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "cost_vs_carbon_tradeoff.png")
+    plt.savefig(output_path)
+    print(f"Successfully generated cost vs carbon tradeoff graph: {output_path}")
+
+    try:
+        plt.show()
+    except:
+        pass
+
 if __name__ == "__main__":
     plot_emissions()
     plot_seasonal_emissions()
     plot_time_of_day_profile()
+    plot_demand_response()
+    plot_cost_vs_carbon()
