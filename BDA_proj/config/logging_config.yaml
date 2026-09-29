@@ -1,0 +1,41 @@
+# ============================================================
+# Logging Configuration
+# ============================================================
+# Centralized logging settings for all modules.
+# ============================================================
+
+logging:
+  # Global log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+  # Log format
+  format: "%(asctime)s | %(name)-40s | %(levelname)-8s | %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+  # Console handler
+  console:
+    enabled: true
+    level: "INFO"
+
+  # File handlers
+  file:
+    app:
+      enabled: true
+      path: "logs/app.log"
+      level: "DEBUG"
+      max_bytes: 10485760    # 10 MB
+      backup_count: 5
+
+    spark:
+      enabled: true
+      path: "logs/spark.log"
+      level: "INFO"
+      max_bytes: 10485760
+      backup_count: 3
+
+    pipeline:
+      enabled: true
+      path: "logs/pipeline.log"
+      level: "DEBUG"
+      max_bytes: 10485760
+      backup_count: 3

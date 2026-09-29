@@ -1,0 +1,44 @@
+# ============================================================
+# Hadoop HDFS Configuration
+# ============================================================
+# All HDFS paths and connection parameters.
+# Modify namenode_uri for cluster deployment.
+# ============================================================
+
+hdfs:
+  # HDFS NameNode connection URI
+  # Local: hdfs://localhost:9000
+  # Cluster: hdfs://<namenode_host>:9000
+  namenode_uri: "hdfs://localhost:9000"
+
+  # ---------------------------------------------------------------
+  # LOCAL MODE (for development without a real Hadoop cluster)
+  # Set local_mode: true to use the local filesystem instead of HDFS.
+  # All HDFS paths will be mapped under local_base_path.
+  # ---------------------------------------------------------------
+  local_mode: true
+  local_base_path: "hdfs_local"  # Relative to project root (BDA_proj/)
+
+  # Base directory for all project data in HDFS
+  base_path: "/user/energy_prediction"
+
+  # HDFS subdirectory paths (relative to base_path)
+  paths:
+    raw_data: "/user/energy_prediction/raw"
+    processed_data: "/user/energy_prediction/processed"
+    features: "/user/energy_prediction/features"
+    models: "/user/energy_prediction/models"
+    energy_estimates: "/user/energy_prediction/energy_estimates"
+    predictions: "/user/energy_prediction/predictions"
+
+  # Replication factor (1 for local/pseudo-distributed, 3 for cluster)
+  replication_factor: 1
+
+  # Connection timeout in seconds
+  connection_timeout: 30
+
+  # Maximum retry attempts for HDFS operations
+  max_retries: 1
+
+  # Delay between retries in seconds
+  retry_delay: 1

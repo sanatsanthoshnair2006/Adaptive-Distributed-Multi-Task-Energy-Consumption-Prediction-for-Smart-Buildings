@@ -1,0 +1,46 @@
+# ============================================================
+# Evaluation & Statistical Validation Configuration
+# ============================================================
+# Settings for post-training evaluation, metric calculation,
+# statistical testing, and report generation.
+# ============================================================
+
+# ---- Regression Metrics ----------------------------------------
+metrics:
+  # Primary metrics to compute for all models
+  compute: ["rmse", "mae", "r2", "mape"]
+  
+  # For MAPE computation: handle zero or near-zero target values
+  # Any absolute target value below this epsilon is clamped.
+  mape_epsilon: 1.0e-6
+
+# ---- Statistical Testing ----------------------------------------
+statistics:
+  # Default significance level for hypothesis testing
+  alpha: 0.05
+  
+  # Primary statistical test to compare paired prediction errors
+  # Supported: "paired_t", "wilcoxon"
+  test_type: "wilcoxon"
+  
+  # Multiple comparison correction method when comparing multiple candidates
+  # Supported: "none", "bonferroni"
+  multiple_comparison_correction: "bonferroni"
+  
+  # Configuration for confidence intervals
+  confidence_intervals:
+    enabled: true
+    # For large datasets, computing exact intervals can be expensive.
+    # Set a maximum sample size to randomly (but deterministically) sample
+    # paired errors for CI computation, or 0 to use all rows.
+    max_sample_size: 100000
+
+# ---- Reporting --------------------------------------------------
+reporting:
+  # Directory where evaluation reports are saved
+  # (Relative to project root, or absolute path)
+  output_dir: "results/evaluation"
+  
+  # Formats to generate for the evaluation report
+  # Supported: "json", "csv", "parquet"
+  formats: ["json", "csv"]

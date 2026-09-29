@@ -1,0 +1,122 @@
+# ============================================================
+# Visualization & Research Reporting Configuration
+# ============================================================
+# All settings for figure generation, table output, and report
+# generation. No research values should be hardcoded in the
+# visualization module itself.
+# ============================================================
+
+# ---- Figure Output Settings -----------------------------------
+figures:
+  # Output directory for all generated figures (relative to project root)
+  output_dir: "visualizations"
+
+  # Supported formats: "png", "pdf" (comma-separated list)
+  formats: ["png", "pdf"]
+
+  # Resolution in dots-per-inch for raster formats (PNG)
+  dpi: 150
+
+  # Default figure size [width, height] in inches
+  figure_size: [12, 6]
+
+  # Maximum data points to plot in time-series views.
+  # If predictions exceed this, uniform sampling is applied (for display only).
+  max_plot_points: 5000
+
+  # Colour for the "selected model" highlight in comparison plots
+  selected_model_color: "#e67e22"
+
+  # Colour palette for candidate models (cycles if more candidates than colours)
+  candidate_palette:
+    - "#3498db"
+    - "#2ecc71"
+    - "#9b59b6"
+    - "#e74c3c"
+    - "#1abc9c"
+    - "#f39c12"
+
+  # Font sizes
+  font:
+    title: 14
+    axis_label: 12
+    tick: 10
+    legend: 10
+
+# ---- Enabled Plots -------------------------------------------
+enabled_plots:
+  # Prediction visualizations (per task, per model)
+  actual_vs_predicted_timeseries: true
+  actual_vs_predicted_scatter: true
+  residual_vs_time: true
+  residual_distribution: true
+
+  # Model comparison (per task)
+  model_comparison_bar: true
+
+  # Composite selection visualizations
+  composite_score_breakdown: true
+  composite_ranking: true
+  composite_vs_rmse_comparison: true
+  normalised_metrics_radar: false   # disabled by default (requires extra deps)
+
+  # Resource performance
+  rmse_vs_training_time: true
+  rmse_vs_prediction_time: true
+  rmse_vs_memory: true
+  mae_vs_resources: true
+
+  # Multi-task
+  multi_task_metrics_bar: true
+  multi_task_selected_model: true
+
+  # Explainability (gracefully skipped if data absent)
+  feature_importance_bar: true
+  shap_summary: true
+
+# ---- Enabled Tables ------------------------------------------
+tables:
+  output_dir: "reports/tables"
+  formats: ["csv", "markdown"]
+
+  enabled:
+    dataset_summary: true
+    candidate_model_config: true
+    prediction_performance: true
+    resource_performance: true
+    composite_selection: true
+    statistical_validation: true
+    explainability_summary: true
+
+# ---- Report Generator ----------------------------------------
+report:
+  output_dir: "reports"
+  formats: ["markdown", "html"]
+
+  # Sections to include
+  sections:
+    project_info: true
+    dataset_summary: true
+    experiment_config: true
+    multi_task_framework: true
+    candidate_models: true
+    hyperparameter_summary: true
+    model_performance: true
+    composite_selection: true
+    rmse_vs_composite_comparison: true
+    resource_performance: true
+    statistical_validation: true
+    explainability_summary: true
+    energy_consumption: true
+    figure_references: true
+    limitations: true
+
+  # Whether to overwrite a previous report with the same experiment ID
+  overwrite_existing: false
+
+# ---- Explainability ------------------------------------------
+explainability:
+  # Number of top features to show in importance plots
+  top_n_features: 15
+  # Path where ExplanationManager writes its outputs
+  output_dir: "results/explanations"

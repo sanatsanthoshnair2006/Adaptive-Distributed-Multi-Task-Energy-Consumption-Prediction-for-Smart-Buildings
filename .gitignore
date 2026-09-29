@@ -1,0 +1,23 @@
+# Data and local Hadoop files
+BDA_proj/data/
+BDA_proj/hdfs_local/
+
+# Logs and outputs
+BDA_proj/logs/
+BDA_proj/results/
+BDA_proj/reports/
+BDA_proj/visualizations/
+
+# Models
+BDA_proj/models/
+
+# Python environments
+venv/
+.env
+__pycache__/
+*.pyc
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store

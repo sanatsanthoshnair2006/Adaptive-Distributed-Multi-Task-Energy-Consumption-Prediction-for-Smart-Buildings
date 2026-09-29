@@ -1,0 +1,33 @@
+# ============================================================
+# Apache Spark Configuration
+# ============================================================
+# Spark session tuning parameters.
+# Modify master for cluster deployment.
+# ============================================================
+
+spark:
+  app_name: "AdaptiveEnergyPrediction"
+
+  # Spark master URL
+  # Local: local[*]  (use all available cores)
+  # Cluster: yarn
+  master: "local[*]"
+
+  # Default filesystem for Spark I/O
+  # Set to file:/// for local development (no Hadoop cluster needed)
+  # For cluster mode: change to hdfs://localhost:9000 or your NameNode URI
+  default_fs: "file:///"
+
+  # Memory allocation
+  executor_memory: "4g"
+  driver_memory: "2g"
+
+  # Core allocation
+  executor_cores: 2
+
+  # Shuffle and parallelism
+  shuffle_partitions: 200
+  default_parallelism: 8
+
+  # Log level for Spark internals
+  log_level: "WARN"

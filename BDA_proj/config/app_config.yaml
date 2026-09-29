@@ -1,0 +1,45 @@
+# ============================================================
+# Application Configuration
+# ============================================================
+# Global project settings, execution mode, and local paths.
+# ============================================================
+
+project:
+  name: "adaptive_energy_prediction"
+  version: "1.0.0"
+
+  # Execution mode: "local" or "cluster"
+  execution_mode: "local"
+
+# Local filesystem paths (relative to project root)
+paths:
+  data_raw_local: "data/raw"
+  data_processed_local: "data/processed"
+  features_local: "data/features"
+  models_local: "models"
+  results_local: "results"
+  reports_local: "reports"
+  visualizations_local: "visualizations"
+  logs_local: "logs"
+
+# Dataset settings
+dataset:
+  filename: "household_power_consumption.txt"
+  delimiter: ";"
+  encoding: "utf-8"
+  missing_value_marker: "?"
+
+  # Expected columns in the raw dataset
+  expected_columns:
+    - "Date"
+    - "Time"
+    - "Global_active_power"
+    - "Global_reactive_power"
+    - "Voltage"
+    - "Global_intensity"
+    - "Sub_metering_1"
+    - "Sub_metering_2"
+    - "Sub_metering_3"
+
+  # Maximum acceptable null percentage per column (0.0 to 100.0)
+  max_null_percentage: 5.0

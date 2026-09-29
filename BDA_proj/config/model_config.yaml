@@ -1,0 +1,168 @@
+# ============================================================
+# Model Configuration
+# ============================================================
+# Centralised configuration for all candidate models,
+# selection profiles, composite score weights, and
+# experiment tracking settings.
+# ============================================================
+
+# ---- Candidate model definitions --------------------------------
+# All hyperparameters are read here; none are hardcoded in Python.
+models:
+  linear_regression:
+    enabled: true
+    max_iter: 100
+    reg_param: 0.0
+    elastic_net_param: 0.0
+    standardization: true
+
+  decision_tree:
+    enabled: true
+    max_depth: 5
+    min_instances_per_node: 1
+    seed: 42
+
+  random_forest:
+    enabled: true
+    num_trees: 100
+    max_depth: 5
+    min_instances_per_node: 1
+    feature_subset_strategy: "auto"
+    seed: 42
+
+  gradient_boosted_tree:
+    enabled: true
+    max_iter: 50
+    max_depth: 5
+    step_size: 0.1
+    subsample_rate: 1.0
+    seed: 42
+
+# ---- Pipeline settings ------------------------------------------
+pipeline:
+  # Fraction of rows reserved for the test set (temporal split)
+  test_ratio: 0.20
+
+  # Parquet write mode for predictions and metrics artefacts
+  overwrite_results: true
+
+  # Configurable random seed for reproducibility
+  random_seed: 42
+
+  # Tolerance used for tie-breaking (scores within this threshold
+  # are considered "effectively identical" before falling back to
+  # secondary criteria)
+  tie_tolerance: 1.0e-6
+
+# ---- Selection profiles -----------------------------------------
+# Each profile defines its own composite score weights.
+# Weights MUST sum to exactly 1.0 — ConfigValidator enforces this.
+selection_profiles:
+
+  # Profile 1: Prioritise predictive accuracy
+  accuracy_focused:
+    rmse: 0.40
+    mae: 0.20
+    r2_penalty: 0.20
+    training_time: 0.08
+    prediction_time: 0.06
+    memory_usage: 0.04
+    cpu_usage: 0.02
+
+  # Profile 2: Balance accuracy and efficiency (DEFAULT)
+  balanced:
+    rmse: 0.30
+    mae: 0.15
+    r2_penalty: 0.15
+    training_time: 0.15
+    prediction_time: 0.10
+    memory_usage: 0.10
+    cpu_usage: 0.05
+
+  # Profile 3: Prioritise computational efficiency
+  efficiency_focused:
+    rmse: 0.15
+    mae: 0.10
+    r2_penalty: 0.10
+    training_time: 0.25
+    prediction_time: 0.20
+    memory_usage: 0.15
+    cpu_usage: 0.05
+
+# ---- Active profile ---------------------------------------------
+# Change this single line to switch the selection strategy.
+active_profile: "balanced"
+
+# ---- Experiment tracking ----------------------------------------
+experiment:
+  # Base directory for experiment results (relative to project root)
+  results_dir: "results/experiments"
+
+  # Whether to persist per-candidate metrics (not just the winner)
+  save_all_candidates: true
+
+  # Parquet or CSV for metrics persistence
+  metrics_format: "parquet"
+
+  # Maximum number of past experiment records to retain per task
+  max_experiments_retained: 50
+
+# ---- Hyperparameter tuning ----------------------------------------
+tuning:
+  # Strategy: "grid_search" or "random_search"
+  strategy: "grid_search"
+
+  # Primary metric for selecting the best hyperparameter combination.
+  # Used ONLY within a single model family — final selection between
+  # model families is handled by the CompositeAdaptiveSelector.
+  # Supported: "rmse", "mae", "r2"
+  primary_metric: "rmse"
+
+  # Maximum number of parameter combinations to evaluate per model.
+  # Limits grid explosion. random_search always respects this cap.
+  max_combinations: 12
+
+  # Random seed for random_search reproducibility.
+  random_seed: 42
+
+  # ---- Cross-validation / time-aware validation -------------------
+  cross_validation:
+    # Strategy for time-series validation.
+    # Options: "chronological" | "expanding_window" | "rolling_window"
+    strategy: "chronological"
+
+    # Number of folds for expanding/rolling window strategies.
+    # For "chronological", this splits the training set into (n_folds)
+    # sequential folds where the last fold is always the holdout.
+    n_folds: 3
+
+    # Fraction of training data to hold out as validation during tuning.
+    # Applied ONLY to the training split — test data is never touched.
+    val_ratio: 0.15
+
+  # ---- Search spaces per model family ----------------------------
+  # Only parameters listed here are searched; base params from the
+  # models section above are used as fixed defaults for unlisted params.
+  search_spaces:
+
+    linear_regression:
+      reg_param:         [0.0, 0.01, 0.1]
+      elastic_net_param: [0.0, 0.5]
+      max_iter:          [100]
+
+    decision_tree:
+      max_depth:                [3, 5, 7]
+      max_bins:                 [32, 64]
+      min_instances_per_node:   [1, 5]
+
+    random_forest:
+      num_trees:                [50, 100]
+      max_depth:                [3, 5]
+      max_bins:                 [32]
+      feature_subset_strategy:  ["auto", "sqrt"]
+
+    gradient_boosted_tree:
+      max_iter:   [30, 50]
+      max_depth:  [3, 5]
+      step_size:  [0.05, 0.1]
+      max_bins:   [32]
